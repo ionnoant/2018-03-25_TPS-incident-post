@@ -172,7 +172,7 @@ $(document).ready(function () {
 <p>The City of Toronto’s open data website contains information on incidents to which Toronto Paramedic Services responds, including the general incident type, priority and number of units arrived at scene. The data-set spans from 2012 through 2015 and contains 1,217,830 rows.</p>
 <p>In this post the daily count of incidents, to which paramedics respond to, is analysed and broken down by year, month, and day of week variables. Three observations are identified from this analysis:</p>
 <ol style="list-style-type: decimal">
-<li>Daily incident count is increasing from 2012 through 2015;</li>
+<li>Daily incident count is increasing from 2012 through 2016;</li>
 <li>Summer months see a higher daily incident count than winter months; and</li>
 <li>Friday’s typically have a higher incident count than other weekdays.</li>
 </ol>
@@ -230,7 +230,7 @@ theme_ai &lt;-<span class="st"> </span><span class="cf">function</span>(){
   <span class="kw">ggplot</span>(<span class="kw">filter</span>(incidentdata_allyears,Count<span class="op">&gt;</span><span class="dv">200</span>),<span class="kw">aes</span>(<span class="dt">x=</span><span class="kw">as.factor</span>(Year),<span class="dt">group=</span>Year,<span class="dt">y=</span>Count))<span class="op">+</span>
 <span class="st">    </span><span class="kw">geom_boxplot</span>(<span class="dt">fill=</span><span class="st">&#39;gray65&#39;</span>)<span class="op">+</span>
 <span class="st">    </span><span class="kw">labs</span>(<span class="dt">title=</span><span class="st">&quot;Paramedic dispatches are increasing year-over-year&quot;</span>,
-         <span class="dt">subtitle=</span><span class="st">&quot;Daily paramedic dispatches from 2012 through 2015&quot;</span>,
+         <span class="dt">subtitle=</span><span class="st">&quot;Daily paramedic dispatches from 2012 through 2016&quot;</span>,
          <span class="dt">x=</span><span class="st">&quot;&quot;</span>,
          <span class="dt">y=</span><span class="st">&quot;&quot;</span>,
          <span class="dt">caption=</span><span class="st">&quot;Source: City of Toronto | Creation: Anthony Ionno&quot;</span>)<span class="op">+</span>
@@ -243,7 +243,7 @@ theme_ai &lt;-<span class="st"> </span><span class="cf">function</span>(){
   <span class="kw">ggplot</span>(<span class="kw">filter</span>(incidentdata_allyears,Count<span class="op">&gt;</span><span class="dv">200</span>),<span class="kw">aes</span>(<span class="dt">x=</span><span class="kw">as.numeric</span>(Month),<span class="dt">group=</span><span class="kw">as.numeric</span>(Month),<span class="dt">y=</span>Count))<span class="op">+</span>
 <span class="st">    </span><span class="kw">geom_boxplot</span>(<span class="dt">fill=</span><span class="st">&#39;gray65&#39;</span>)<span class="op">+</span>
 <span class="st">    </span><span class="kw">labs</span>(<span class="dt">title=</span><span class="st">&quot;Paramedic dispatches occur more frequently in the summer&quot;</span>,
-         <span class="dt">subtitle=</span><span class="st">&quot;Daily paramedic dispatches from 2012 through 2015&quot;</span>,
+         <span class="dt">subtitle=</span><span class="st">&quot;Daily paramedic dispatches from 2012 through 2016&quot;</span>,
          <span class="dt">x=</span><span class="st">&quot;&quot;</span>,
          <span class="dt">y=</span><span class="st">&quot;&quot;</span>,
          <span class="dt">caption=</span><span class="st">&quot;Source: City of Toronto | Creation: Anthony Ionno&quot;</span>)<span class="op">+</span>
@@ -256,7 +256,7 @@ theme_ai &lt;-<span class="st"> </span><span class="cf">function</span>(){
   <span class="kw">ggplot</span>(<span class="kw">filter</span>(incidentdata_allyears,Count<span class="op">&gt;</span><span class="dv">200</span>),<span class="kw">aes</span>(<span class="dt">x=</span><span class="kw">as.numeric</span>(Dayofweek),<span class="dt">group=</span><span class="kw">as.numeric</span>(Dayofweek),<span class="dt">y=</span>Count))<span class="op">+</span>
 <span class="st">    </span><span class="kw">geom_boxplot</span>(<span class="dt">fill=</span><span class="st">&#39;gray65&#39;</span>)<span class="op">+</span>
 <span class="st">    </span><span class="kw">labs</span>(<span class="dt">title=</span><span class="st">&quot;Paramedic dispatches occur more frequently on Fridays&quot;</span>,
-         <span class="dt">subtitle=</span><span class="st">&quot;Daily paramedic dispatches from 2012 through 2015&quot;</span>,
+         <span class="dt">subtitle=</span><span class="st">&quot;Daily paramedic dispatches from 2012 through 2016&quot;</span>,
          <span class="dt">x=</span><span class="st">&quot;&quot;</span>,
          <span class="dt">y=</span><span class="st">&quot;&quot;</span>,
          <span class="dt">caption=</span><span class="st">&quot;Source: City of Toronto | Creation: Anthony Ionno&quot;</span>)<span class="op">+</span>
