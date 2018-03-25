@@ -1,162 +1,110 @@
 ---
-title: "Reproducible, collaborative workflow with Github and R Markdown"
-author: "Julie Lowndes"
-date: "July 13, 2016"
-output: 
-  html_document:
+title: "Help is on the way (2 of 2)"
+subtitle: "Observing the increase in Toronto Paramedic Service dispatch frequency from 2012 through 2016"
+author: "Anthony Ionno"
+date: "March 25, 2018"
+output:
+  rmarkdown::html_document:
+    theme: cosmo
+    highlight: monochrome
     toc: true
-    toc_float: true
-    number_sections: true
-    #code_folding: hide
+    code_folding: hide
+    self_contained: no
 ---
 
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
-library(htmltools)
+
+## Summary 
+The City of Toronto’s open data website contains information on incidents to which Toronto Paramedic Services responds, including the general incident type, priority and number of units arrived at scene. The data-set spans from 2012 through 2015 and contains 1,217,830 rows.
+
+In this post the daily count of incidents, to which paramedics respond to, is analysed and broken down by year, month, and day of week variables. Three observations are identified from this analysis: 
+
+1.	Daily incident count is increasing from 2012 through 2015;
+2.	Summer months see a higher daily incident count than winter months; and 
+3.	Friday’s typically have a higher incident count than other weekdays.
+
+## Analysis
+
+### Data
+The raw data used in this analysis can be located on the [City of Toronto’s open data website](https://www.toronto.ca/city-government/data-research-maps/open-data/open-data-catalogue/#512a2dc5-f44a-8f20-ac6a-3b9f7f6100ac). A processed version of the raw data that contains the updated variables used in the analysis below can be located on my [github page](https://github.com/ionnoant/2018-03-25_TPS-incident-post).
+
+### R libraries
+The following libraries were loaded into my R workspace for this analysis
+```{r,cache=TRUE,message=FALSE}
+library(tidyverse);library(magrittr);library(car);
+library(GGally);
+library(extrafont);
+library(readxl)
 ```
+### Preprocessing
+The data on the city of Toronto’s website is transformed into a single file with daily incident counts.
 
-# Objectives
+```{r,cache=TRUE}
 
+Ystart<-2012
+Yend<-2016
+for(i in Ystart:Yend){assign(paste("incidentdata",i,sep=""),read_excel("Data/TPS Incident Data_2012-2016.xlsx",sheet = paste(i)))}
+# The individual data frames are combined, new temporal variables are created and used to create a daily incidence count variable. 
+incidentdata_allyears<-rbind(incidentdata2012, incidentdata2013, incidentdata2014, incidentdata2015, incidentdata2016)
+names(incidentdata_allyears)[2]<-"Date"
+  incidentdata_allyears<-incidentdata_allyears %>%
+    mutate(Date=as.Date(Date),Year=format(Date,"%Y"),Month=format(Date,"%m"),Dayofweek=format(Date,"%u")) %>%
+    group_by(Date,Year,Month,Dayofweek) %>%
+    summarise(Count=n())
+  # Last row is removed due to ambiguity
+  incidentdata_allyears<-incidentdata_allyears[-1827,] 
 
-
-```{r, message=F, warning=F, results='hide'}
-## load libraries
-library(dplyr) # you need to have all libraries loaded within the Rmd file
-library(ggplot2) #install.packages('ggplot2')
-library(gapminder)
-
-# get range of available data
-summary(gapminder)
 ```
-
-### Scatterplot
-
-```{r, message=F, warning=F}
-# setup dataframe
-g = gapminder %>%
-  filter(year==2007) %>%   # most recent year 
-  mutate(pop_m = pop/1e6)  # population, millions
-
-# plot scatterplot of most recent year 
-s = ggplot(g, aes(x=gdpPercap, y=lifeExp)) +
-  geom_point()
-s
-
-# add aesthetic of size by population
-s = s + 
-  aes(size=pop_m)
-s
-
-# add aesthetic of color by continent
-s = s + 
-  aes(color=continent)
-s
-
-# add title, update axes labels
-s = s + 
-  ggtitle('Health & Wealth of Nations for 2007') +
-  xlab('GDP per capita ($/year)') +
-  ylab('Life expectancy (years)')
-s
-
-# label legend
-s = s + 
-  scale_colour_discrete(name='Continent') +
-  scale_size_continuous(name='Population (M)')
-s
-```
-
-**Your Turn**: Make a similar plot but for `gdpPercap`. Be sure to update the plot's aesthetic, axis label and title accordingly.
-
-### Boxplot
-
-```{r}
-# boxplot by continent
-b = ggplot(g, aes(x=continent, y=lifeExp)) +
-  geom_boxplot()
-b
-
-# match color to continents, like scatterplot
-b = b +
-  aes(fill=continent)
-b
-
-# drop legend, add title, update axes labels
-b = b +
-  theme(legend.position='none') +
-  ggtitle('Life Expectancy by Continent for 2007') +
-  xlab('Continent') +
-  ylab('Life expectancy (years)')
-b
-```
-
-## Interactive: `plotly`
-
-[ggplot2 | plotly](https://plot.ly/ggplot2/)
-
-```{r, eval = FALSE, message=F, warning=F}
-library(plotly) # install.packages('plotly')
-
-# scatterplot (Note: key=country shows up on rollover)
-s = ggplot(g, aes(x=gdpPercap, y=lifeExp, key=country)) +
-  geom_point()
-ggplotly(s) # must comment out or have eval=FALSE to knit
-
-# boxplot
-ggplotly(b) # must comment out or have eval=FALSE to knit
-```
-
-
-
-
-```{r, results='hide', message=FALSE, warning=FALSE}
-library(tmap) # install.packages('tmap')
-
-# load world spatial polygons
-data(World)
-
-# inspect values in World
-World@data %>% tbl_df()
-
-# gapminder countries not in World. skipping for now
-g %>% 
-  anti_join(World@data, by=c('country'='name')) %>% 
-  arrange(desc(pop))
-
-# World countries not in gapminder. skipping for now
-World@data %>% 
-  anti_join(g, by=c('name'='country')) %>% 
-  arrange(desc(pop_est)) %>%
-  select(iso_a3, name, pop_est)
-
-# join gapminder data to World
-World@data = World@data %>%
-  left_join(g, by=c('name'='country'))
-```
-
-```{r}
-# make map
-m = tm_shape(World) +
-    tm_polygons('lifeExp', palette='RdYlGn', id='name', title='Life expectancy (years)', auto.palette.mapping=F) +
-    tm_style_gray() + tm_format_World()
-m
-```
-
-## Interactive
-
-```{r}
-# show interactive map
-tmap_leaflet(m)
-```
-
-
-# References
-
-- [ggplot2-cheatsheet-2.0.pdf](../cheatsheets/ggplot2-cheatsheet-2.0.pdf)
-- [Interactive Plots and Maps - Environmental Informatics](http://ucsb-bren.github.io/env-info/wk06_widgets.html)
-- [Graphs with ggplot2 - Cookbook for R](http://www.cookbook-r.com/Graphs/#graphs-with-ggplot2)
-- [ggplot2 Essentials - STHDA](http://www.sthda.com/english/wiki/ggplot2-essentials)
-- [NEON Working with Geospatial Data](http://neon-workwithdata.github.io/NEON-R-Spatio-Temporal-Data-and-Management-Intro/)
-
-
-
+### Results
+Three figures are made from the transformed data and correspond to the three observations made in the summary section. 
+```{r, cache=TRUE}
+# A custom theme is defined 
+theme_ai <- function(){
+  theme_minimal() +
+    theme(
+      text = element_text(family = "Segoe UI", color = "gray25"),
+      plot.title = element_text(size=16),
+      plot.subtitle = element_text(size = 14),
+      axis.text = element_text(size=13),
+      plot.caption = element_text(color = "gray30", size=12),
+      plot.background = element_rect(fill = "gray95"),
+      plot.margin = unit(c(5, 10, 5, 10), units = "mm"),
+      #axis.line = element_line(color="gray50")
+      axis.ticks.x = element_line(color="gray35"),
+      panel.grid.major.y = element_line(colour = "gray80"))
+    
+}
+# Daily incident count is plotted against a year factor variable
+  ggplot(filter(incidentdata_allyears,Count>200),aes(x=as.factor(Year),group=Year,y=Count))+
+    geom_boxplot(fill='gray65')+
+    labs(title="Paramedic dispatches are increasing year-over-year",
+         subtitle="Daily paramedic dispatches from 2012 through 2015",
+         x="",
+         y="",
+         caption="Source: City of Toronto | Creation: Anthony Ionno")+
+    xlab("")+
+    ylab("")+
+    theme_ai()+
+    scale_y_continuous(breaks=seq(0,900,50))
+# Daily incident count is plotted against a monthly factor variable
+  ggplot(filter(incidentdata_allyears,Count>200),aes(x=as.numeric(Month),group=as.numeric(Month),y=Count))+
+    geom_boxplot(fill='gray65')+
+    labs(title="Paramedic dispatches occur more frequently in the summer",
+         subtitle="Daily paramedic dispatches from 2012 through 2015",
+         x="",
+         y="",
+         caption="Source: City of Toronto | Creation: Anthony Ionno")+
+    theme_ai()+
+    scale_x_continuous(breaks=seq(1,12,1),labels = c("Jan","Feb","Mar","Apr","May","Jun","Jul",
+                                                     "Aug","Sep","Oct","Nov","Dec"))+
+    scale_y_continuous(breaks=seq(0,900,50))
+# Daily incident count is plotted against a weekday factor variable
+  ggplot(filter(incidentdata_allyears,Count>200),aes(x=as.numeric(Dayofweek),group=as.numeric(Dayofweek),y=Count))+
+    geom_boxplot(fill='gray65')+
+    labs(title="Paramedic dispatches occur more frequently on Fridays",
+         subtitle="Daily paramedic dispatches from 2012 through 2015",
+         x="",
+         y="",
+         caption="Source: City of Toronto | Creation: Anthony Ionno")+
+    theme_ai()+
+    scale_x_continuous(breaks=seq(1,7,1),labels = c("Mon","Tues","Weds","Thurs","Fri","Sat","Sun"))+
+    scale_y_continuous(breaks=seq(0,900,50))
